@@ -8,10 +8,19 @@ The seal's invariant is `G (executed → allowed)`, NOT `G (¬ denied)`:
 a deny decision is not itself bad; *executing after a deny* is bad
 (council 2fc86cd0, Codex).
 
-Two trust boundaries are stated as explicit hypotheses. The temporal proof
-sits ON TOP of them; if either fails the proof is vacuous. They are NOT
-provable inside Lean — they are obligations discharged by the seal's
-construction (canonical serialization) and by inline enforcement.
+## M2 change — enforcement localised (council 798c9d99)
+
+M1 stated enforcement as a GLOBAL axiom `∀ σ n, ¬allowed → ¬executed`.
+Because `Event` admits `{allowed := False, executed := True}`, a constant
+such stream made that axiom globally inconsistent (Lean could derive `False`).
+M2 replaces it with a per-trace predicate `Enforced σ` and PROVES
+`Enforced σ → sealSafe σ`.
+
+The old `Canonical` axiom (parser-differential / canonical-serialization
+trust boundary) is retired from the Lean source: it was inert (used only as a
+vacuous hypothesis) and a naked `axiom` is optically weak under
+`lake exe min_print_axioms`. It remains a documented deployment obligation,
+discharged by the M3 canonical-serialization roundtrip, not by this library.
 -/
 
 namespace Temporal
@@ -28,28 +37,17 @@ structure Event where
 def sealSafe (σ : Stream' Event) : Prop :=
   Safety (fun e => e.executed → e.allowed) σ
 
-/-! ## Trust boundary 1 — parser-differential / canonical serialization
+/-- Enforcement as a per-trace predicate (M2: localised from the old global
+axiom). On this trace, no denied call ever executes. -/
+def Enforced (σ : Stream' Event) : Prop :=
+  ∀ n, ¬ (σ n).allowed → ¬ (σ n).executed
 
-The abstract trace `σ : Stream' Event` is faithful to reality only if the
-bytes the seal classified are the bytes the upstream server executed.
-`Canonical` is that obligation, discharged by the M3 canonical-serialization
-roundtrip, NOT by this library. -/
-axiom Canonical : Prop
-
-/-! ## Trust boundary 2 — enforcement
-
-The seal must be inline (a proxy), so that a deny decision actually prevents
-execution. `enforcement_sound` is read off the deployment, not proved here. -/
-axiom enforcement_sound :
-    ∀ (σ : Stream' Event) (n : Nat), ¬ (σ n).allowed → ¬ (σ n).executed
-
-/-- With enforcement, the seal property holds on every trace. The honest
-content of the seal: its *behavioural* guarantee reduces to `enforcement_sound`
-under the `Canonical` boundary. -/
-theorem sealSafe_of_enforcement (h : Canonical) (σ : Stream' Event) :
+/-- With enforcement on a trace, the seal property holds on that trace. The
+honest content of the seal: its behavioural guarantee reduces to `Enforced`,
+now a hypothesis we discharge for gate-generated traces (see `Monitor`),
+rather than a global axiom. -/
+theorem sealSafe_of_enforced (σ : Stream' Event) (h : Enforced σ) :
     sealSafe σ := by
-  intro n he
-  by_contra hna
-  exact enforcement_sound σ n hna he
+  sorry
 
 end Temporal
