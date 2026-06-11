@@ -28,10 +28,12 @@ variable {State : Type u}
 def take (σ : Stream' State) (n : Nat) : List State :=
   (List.range n).map σ
 
-/-- The length of a length-`n` prefix is `n`. -/
+/-
+The length of a length-`n` prefix is `n`.
+-/
 theorem length_take (σ : Stream' State) (n : Nat) :
     (take σ n).length = n := by
-  sorry
+  simp [take, List.length_map, List.length_range]
 
 /-- A finite prefix is *bad* for `p` if some observed state violates `p`. -/
 def badPrefix (p : State → Prop) (pre : List State) : Prop :=
@@ -42,23 +44,39 @@ states. -/
 def Extends (pre : List State) (τ : Stream' State) : Prop :=
   take τ pre.length = pre
 
-/-- A bad finite prefix witnesses a safety violation. -/
+/-
+A bad finite prefix witnesses a safety violation.
+-/
 theorem badPrefix_violates (p : State → Prop) (σ : Stream' State) (n : Nat)
     (h : badPrefix p (take σ n)) : ¬ Safety p σ := by
-  sorry
+  -- By definition of badPrefix, there exists some state s in take σ n such that ¬ p s.
+  obtain ⟨s, hs⟩ : ∃ s ∈ take σ n, ¬ p s := h;
+  obtain ⟨ k, hk ⟩ := List.mem_map.mp hs.1;
+  exact fun h => hs.2 ( hk.2 ▸ h k )
 
-/-- Every safety violation is witnessed by a bad finite prefix. -/
+/-
+Every safety violation is witnessed by a bad finite prefix.
+-/
 theorem violation_has_badPrefix (p : State → Prop) (σ : Stream' State)
     (h : ¬ Safety p σ) : ∃ n, badPrefix p (take σ n) := by
-  sorry
+  obtain ⟨ k, hk ⟩ := not_forall.mp h;
+  exact ⟨ k + 1, σ k, by simp +decide [ take, List.range_succ ], hk ⟩
 
-/-- **Alpern–Schneider (safety fragment).** A trace violates the invariant
+/-
+**Alpern–Schneider (safety fragment).** A trace violates the invariant
 iff it has a finite prefix that no infinite extension can satisfy.
 This is the irrefutability of safety: violations are detectable in finite
-time and cannot be undone by the future. -/
+time and cannot be undone by the future.
+-/
 theorem alpern_schneider (p : State → Prop) (σ : Stream' State) :
     ¬ Safety p σ ↔
       ∃ n, ∀ τ : Stream' State, Extends (take σ n) τ → ¬ Safety p τ := by
-  sorry
+  refine' ⟨ fun h => _, _ ⟩;
+  · obtain ⟨ k, hk ⟩ := not_forall.mp h;
+    refine' ⟨ k + 1, fun τ hτ => _ ⟩;
+    unfold Extends at hτ; simp_all +decide [ take ] ;
+    exact fun h => hk <| hτ k le_rfl ▸ h k;
+  · rintro ⟨ n, hn ⟩ h;
+    exact hn σ ( by unfold Extends take; aesop ) h
 
 end Temporal

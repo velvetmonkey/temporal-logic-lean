@@ -42,12 +42,14 @@ axiom). On this trace, no denied call ever executes. -/
 def Enforced (σ : Stream' Event) : Prop :=
   ∀ n, ¬ (σ n).allowed → ¬ (σ n).executed
 
-/-- With enforcement on a trace, the seal property holds on that trace. The
+/-
+With enforcement on a trace, the seal property holds on that trace. The
 honest content of the seal: its behavioural guarantee reduces to `Enforced`,
 now a hypothesis we discharge for gate-generated traces (see `Monitor`),
-rather than a global axiom. -/
+rather than a global axiom.
+-/
 theorem sealSafe_of_enforced (σ : Stream' Event) (h : Enforced σ) :
     sealSafe σ := by
-  sorry
+  exact fun n => by contrapose! h; tauto;
 
 end Temporal

@@ -28,16 +28,20 @@ variable {State : Type u}
 satisfies the decidable predicate `p`. -/
 def monitor (p : State → Bool) (pre : List State) : Bool := pre.all p
 
-/-- **Monitor soundness.** The monitor accepts the length-`n` prefix iff `p`
-holds at every position below `n`. -/
+/-
+**Monitor soundness.** The monitor accepts the length-`n` prefix iff `p`
+holds at every position below `n`.
+-/
 theorem monitor_sound (p : State → Bool) (σ : Stream' State) (n : Nat) :
     monitor p (take σ n) = true ↔ ∀ k, k < n → p (σ k) = true := by
-  sorry
+  simp +decide [ monitor, take ]
 
-/-- The monitor rejects exactly when a bad prefix (Bool sense) exists. -/
+/-
+The monitor rejects exactly when a bad prefix (Bool sense) exists.
+-/
 theorem monitor_rejects_iff (p : State → Bool) (σ : Stream' State) (n : Nat) :
     monitor p (take σ n) = false ↔ ∃ k, k < n ∧ p (σ k) = false := by
-  sorry
+  simp +decide [ monitor, take ]
 
 /-! ## Enforcement discharge — global axiom becomes a theorem
 
@@ -53,12 +57,14 @@ def gateEvent (requested allowed : Prop) : Event :=
 def gateTrace (req alw : Stream' Prop) : Stream' Event :=
   fun n => gateEvent (req n) (alw n)
 
-/-- **Enforcement, discharged.** Every gate-generated trace satisfies
+/-
+**Enforcement, discharged.** Every gate-generated trace satisfies
 `Enforced` by construction. The M1 global enforcement axiom is now a theorem
-for traces the gate produces. -/
+for traces the gate produces.
+-/
 theorem gateTrace_enforced (req alw : Stream' Prop) :
     Enforced (gateTrace req alw) := by
-  sorry
+  intro n hn; simp_all +decide [ gateTrace, gateEvent ] ;
 
 /-- **Headline.** Every gate-generated trace is seal-safe, with no enforcement
 axiom in the trust base. -/
