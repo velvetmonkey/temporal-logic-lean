@@ -1,0 +1,11 @@
+name = "temporal-logic-lean"
+version = "0.1.0"
+defaultTargets = ["Temporal"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "Temporal"
