@@ -48,6 +48,8 @@ content of the seal: its *behavioural* guarantee reduces to `enforcement_sound`
 under the `Canonical` boundary. -/
 theorem sealSafe_of_enforcement (h : Canonical) (σ : Stream' Event) :
     sealSafe σ := by
-  sorry
+  intro n he
+  by_contra hna
+  exact enforcement_sound σ n hna he
 
 end Temporal

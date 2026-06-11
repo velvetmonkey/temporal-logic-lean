@@ -50,14 +50,24 @@ def globally (φ : Formula State) : Formula State := .neg (eventually (.neg φ))
 @[inherit_doc] prefix:80 "F " => eventually
 @[inherit_doc] prefix:80 "G " => globally
 
-/-- `G φ` unfolds to "φ holds at every suffix". The bridge to invariant safety. -/
+/-
+`G φ` unfolds to "φ holds at every suffix". The bridge to invariant safety.
+-/
 theorem sat_globally (σ : Stream' State) (φ : Formula State) :
     sat σ (G φ) ↔ ∀ n, sat (σ.drop n) φ := by
-  sorry
+  simp +decide only [globally];
+  simp +decide [ eventually, sat ]
 
-/-- `F ψ` unfolds to "ψ holds at some suffix". -/
+/-
+`F ψ` unfolds to "ψ holds at some suffix".
+-/
 theorem sat_eventually (σ : Stream' State) (ψ : Formula State) :
     sat σ (F ψ) ↔ ∃ n, sat (σ.drop n) ψ := by
-  sorry
+  constructor;
+  · exact fun h => by obtain ⟨ n, hn ⟩ := h; exact ⟨ n, hn.1 ⟩ ;
+  · rintro ⟨ n, hn ⟩;
+    -- By definition of `eventually`, we need to show that there exists some `i` such that `sat (σ.drop i) ψ`.
+    use n;
+    exact ⟨ hn, fun j hj => trivial ⟩
 
 end Temporal
