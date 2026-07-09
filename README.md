@@ -91,3 +91,7 @@ lake exe axiom_check   # re-run the axiom-footprint gate
 ## License
 
 MIT © 2026 Ben Cassie.
+
+---
+
+Part of the [velvetmonkey Lean 4 proof corpus](https://velvetmonkey.github.io/lean/).
