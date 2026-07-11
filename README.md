@@ -4,6 +4,8 @@ A small, `sorry`-free [Lean 4](https://lean-lang.org) formalization of **linear 
 
 Every public result is pinned to the standard axiom set at compile time. No `sorry`, no `native_decide`, no `Lean.ofReduceBool`.
 
+Two further modules prove the **converse**, and it is the sharper claim for security: a monitor with too little memory, or too small an observation budget, provably **cannot** enforce an assembled-violation property, with a kernel-checked bypass exhibited. Finite heuristic guards are defeatable by construction; exact-match mediation is the boundary that holds. See [the impossibility half](#the-impossibility-half-bounded-monitors-provably-fail).
+
 ## The story
 
 The Safety Seal makes one behavioural promise: **a tool call is never executed unless the gate allowed it.** The question this repo answers is: what does that promise actually *reduce to*, once you stop hand-waving?
@@ -49,6 +51,22 @@ All statements below are machine-checked and axiom-gated (see [Axiom discipline]
 - `gateTrace_enforced` — every trace the gate generates satisfies `Enforced` by construction, no axiom.
 - **`gateTrace_sealSafe`** — every gate-generated trace is seal-safe, with no enforcement axiom in the trust base.
 
+## The impossibility half: bounded monitors provably fail
+
+Monitor *soundness* (above) proves a correct monitor enforces. The dual question is the one that matters for security: can a monitor that is **too small** enforce at all? Two machine-checked lower bounds answer no, and hand you the bypass. This is the formal reason exact-match mediation beats heuristic monitoring, from two independent angles.
+
+**Bounded memory** — `Temporal/BoundedMonitor.lean`
+- **`bounded_monitor_memory_lower_bound`** — a finite-state monitor with fewer than `2^N` memory states provably cannot enforce the `N`-piece assembled-violation property: two distinct subset-histories must collide, so its verdict cannot separate a completed violation from an innocent prefix.
+- `enforces_no_collision` — the collision lemma the bound rests on.
+- `seenZeroGuard_not_enforces` / `seenZeroGuard_bypass` — a concrete one-bit guard, kernel-checked, that fails to enforce the two-piece assembly (which needs 4 states). The bypass is a theorem, not a demo.
+
+**Bounded observation** — `Temporal/BoundedObs.lean` (reuses [attention-lean](https://github.com/velvetmonkey/attention-lean)'s `Fixable` decision-list bound)
+- **`obs_monitor_misses_assembly`** — a monitor that makes `k` sub-decisions, each over a `t`-bounded observation window, provably cannot decide an `n`-marker parity assembly once its budget `k · t < n`.
+- `parity_action_innocuous` — every single action is individually innocuous: flipping any one marker flips the verdict, so there is no local tell for a per-action guard to catch. Maximal sensitivity, zero locality.
+- `obs_monitor_bypass` — the `k · t < n` collision made concrete.
+
+Both angles are pinned to `{propext, Classical.choice, Quot.sound}` in `Test/Axioms.lean`; the attention-lean dependency is pinned to a public commit in `lakefile.toml`.
+
 ## Honest boundaries — what this does NOT claim
 
 - **Gate-generated traces, not arbitrary streams.** `gateTrace_sealSafe` covers traces the verified gate produces (`executed := requested ∧ allowed`). It does not claim safety for an arbitrary observed event stream, which no library can promise. This is the honest form of the enforcement claim.
@@ -56,6 +74,7 @@ All statements below are machine-checked and axiom-gated (see [Axiom discipline]
 - **The `Canonical` (parser-differential / canonical-serialization) trust boundary is a deployment obligation, not a theorem here.** It was inert in the Lean source (a vacuous hypothesis) and a naked `axiom` reads weak, so it is removed from the source and documented instead. It is discharged by the canonical-serialization roundtrip at the deployment layer, not by this library.
 - **`Prop`-valued semantics.** The general LTL semantics is `Prop`-valued. The *executable* `Bool` monitor is provided for the safety fragment only, by design (council `798c9d99`): a parallel general-LTL `Bool` AST would smuggle back the automata machinery this formalization deliberately avoids.
 - **Depends on Mathlib** (classical logic). Footprints are reported honestly below rather than claimed to be constructive.
+- **The bounded-monitor lower bounds are model-level.** They prove that a monitor below the memory or observation threshold cannot enforce a specific abstract assembled-violation property; they are a lower bound on that model, not a claim that every real-world monitor is broken. The value is the *direction*: it shows a finite guard has a provable blind spot, which is exactly what exact-match mediation removes.
 
 ## Axiom discipline
 
@@ -86,6 +105,8 @@ lake exe axiom_check   # re-run the axiom-footprint gate
 | `Temporal/Prefix.lean` | Finite prefixes as `List State`; Alpern–Schneider |
 | `Temporal/Seal.lean` | `Event`, `sealSafe`, `Enforced`, enforcement discharge |
 | `Temporal/Monitor.lean` | Executable monitor + `gateTrace_sealSafe` capstone |
+| `Temporal/BoundedMonitor.lean` | Bounded-memory impossibility: `bounded_monitor_memory_lower_bound`, concrete one-bit bypass |
+| `Temporal/BoundedObs.lean` | Bounded-observation impossibility via attention-lean `Fixable`: `obs_monitor_misses_assembly` |
 | `Test/Axioms.lean` | `#guard_msgs` axiom-footprint gate (`lake exe axiom_check`) |
 
 ## License
