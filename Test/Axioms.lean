@@ -106,5 +106,46 @@ info: 'Temporal.gateTrace_sealSafe' depends on axioms: [propext, Classical.choic
 -/
 #guard_msgs in #print axioms Temporal.gateTrace_sealSafe
 
+-- Bounded-monitor impossibility, Angle A: sequential memory lower bound
+-- (Temporal/BoundedMonitor.lean).
+
+/--
+info: 'Temporal.bounded_monitor_memory_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.bounded_monitor_memory_lower_bound
+
+/--
+info: 'Temporal.enforces_no_collision' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.enforces_no_collision
+
+/--
+info: 'Temporal.seenZeroGuard_not_enforces' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.seenZeroGuard_not_enforces
+
+/--
+info: 'Temporal.seenZeroGuard_bypass' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.seenZeroGuard_bypass
+
+-- Bounded-monitor impossibility, Angle B: parallel observation lower bound,
+-- attention-lean parity/decision-list engine (Temporal/BoundedObs.lean).
+
+/--
+info: 'Temporal.obs_monitor_misses_assembly' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.obs_monitor_misses_assembly
+
+/--
+info: 'Temporal.obs_monitor_bypass' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.obs_monitor_bypass
+
+/--
+info: 'Temporal.parity_action_innocuous' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms Temporal.parity_action_innocuous
+
 def main : IO Unit :=
   IO.println "axiom gate passed: all checks pinned by #guard_msgs at compile time"

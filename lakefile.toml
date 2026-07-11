@@ -7,6 +7,14 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.28.0"
 
+# Angle B of Temporal/BoundedMonitor reuses the parity / decision-list counting
+# bound (FixableK, collision_of_fixableK) from attention-lean. Pinned to public
+# origin/main; both repos carry mathlib v4.28.0 so resolution matches.
+[[require]]
+name = "attention-lean"
+git = "https://github.com/velvetmonkey/attention-lean.git"
+rev = "888869a858145e500d95eea9fc7b1a64fcda0a7c"
+
 [[lean_lib]]
 name = "Temporal"
 
