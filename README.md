@@ -1,5 +1,7 @@
 # temporal-logic-lean
 
+[![CI](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml)
+
 A small, `sorry`-free [Lean 4](https://lean-lang.org) formalization of **linear temporal logic (LTL) over infinite traces**, ending in an **executable safety monitor** whose soundness turns the Safety Seal's enforcement guarantee from an *axiom* into a *theorem*.
 
 Every public result is pinned to the standard axiom set at compile time. No `sorry`, no `native_decide`, no `Lean.ofReduceBool`.
