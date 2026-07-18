@@ -1,5 +1,6 @@
 # temporal-logic-lean
 
+[![thread](https://img.shields.io/badge/%F0%9F%A7%B5-how%20it%20works-1DA1F2)](https://x.com/thevelvetmonke)
 [![CI](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml)
 
 A small, `sorry`-free [Lean 4](https://lean-lang.org) formalization of **linear temporal logic (LTL) over infinite traces**, ending in an **executable safety monitor** whose soundness turns the Safety Seal's enforcement guarantee from an *axiom* into a *theorem*.
@@ -7,6 +8,14 @@ A small, `sorry`-free [Lean 4](https://lean-lang.org) formalization of **linear 
 Every public result is pinned to the standard axiom set at compile time. No `sorry`, no `native_decide`, no `Lean.ofReduceBool`.
 
 Two further modules prove the **converse**, and it is the sharper claim for security: a monitor with too little memory, or too small an observation budget, provably **cannot** enforce an assembled-violation property, with a kernel-checked bypass exhibited. Finite heuristic guards are defeatable by construction; exact-match mediation is the boundary that holds. See [the impossibility half](#the-impossibility-half-bounded-monitors-provably-fail).
+
+## What this is, and why it matters
+
+The headline theorem is `gateTrace_sealSafe` in `Temporal/Monitor.lean`. It proves that every trace constructed from the model's input streams satisfies its LTL safety specification.
+
+The trace constructor establishes the per-trace `Enforced` predicate by construction, and `sealSafe_of_enforced` converts that predicate into the temporal trace-safety property. Supporting modules give `Prop`-valued LTL semantics, finite bad prefixes, and an executable `List.all` safety monitor with a soundness theorem.
+
+The conclusion is limited to traces produced by `gateTrace`; it says nothing about arbitrary event streams or implementations that do not follow that constructor. Connecting concrete observations to the model remains a deployment obligation. The separate bounded-monitor results are model-specific impossibility theorems and are not part of the headline statement.
 
 ## The story
 
