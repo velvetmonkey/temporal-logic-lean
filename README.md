@@ -1,6 +1,5 @@
 # temporal-logic-lean
 
-[![thread](https://img.shields.io/badge/%F0%9F%A7%B5-how%20it%20works-1DA1F2)](https://x.com/thevelvetmonke)
 [![CI](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/velvetmonkey/temporal-logic-lean/actions/workflows/ci.yml)
 
 A small, `sorry`-free [Lean 4](https://lean-lang.org) formalization of **linear temporal logic (LTL) over infinite traces**, ending in an **executable safety monitor** whose soundness turns the Safety Seal's enforcement guarantee from an *axiom* into a *theorem*.
